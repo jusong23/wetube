@@ -1,13 +1,18 @@
 const express = require("express");
 const schedule = require("node-schedule");
 const Crawler = require("crawler");
-const log = console.log;
 const app = express();
-const PORT = 3001;
-const users = [];
+const PORT = 3000;
+const users = [
+  {
+    name: "송이네 잡화상점",
+    age: 23,
+  },
+];
+
+var STORE = [];
 
 app.use(express.json()); // JSON parse 미들웨어 추가
-
 // REST API 메소드
 // 첫번째 인자: End Point
 // 두번째 인자: 콜백함수 - 이 함수는 두개의 인자를 받는다.
@@ -44,18 +49,32 @@ app.listen(PORT, function () {
           var $ = res.$;
           // $ is Cheerio by default
           //a lean implementation of core jQuery designed specifically for the server
-          console.log($("title").text());
+          //   console.log($("title").text());
 
-          /***************************************************
-                  이부분에서 jQuery를 이용해 데이터를 파싱하고 출력할 것입니다.
-                  ****************************************************/
+          const $bodyList = $("div.productByMall_text_over__mA2mG");
+
+          let newsList = [];
+          $bodyList.each(function (i, elem) {
+            newsList[i] = $(this).find("a.productByMall_mall__SIa50").text();
+          });
+
+          //   console.log(newsList[0]);
+          //   console.log(STORE);
+
+          if (users[0].name == newsList[0]) {
+            console.log(users[0].name + " 카탈로그 1위 유지 중");
+          } else {
+            console.log(newsList[0] + "에게");
+            console.log("1위를 뺏겼다 !");
+          }
         }
         done();
       },
     });
 
     // Queue just one URL, with default callback
-    c.queue("http://www.naver.com");
-    // url은 네이버의 주소로 변경해줍니다.
+    c.queue("https://search.shopping.naver.com/catalog/30275737768");
   });
 });
+
+// post로 입력받는 란 url, 스토어명 다르면 콘솔(푸시알림으로 할거임)
